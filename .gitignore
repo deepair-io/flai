@@ -127,3 +127,16 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Addtional
+.DS_Store
+.vscode/
+
+# vim
+*.swp
+.vim
+# poetry
+poetry.lock
+
+#Dev-demo
+demo
