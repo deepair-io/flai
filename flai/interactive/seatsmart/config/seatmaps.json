@@ -1,0 +1,95 @@
+{
+    "UO_A320": 
+    {
+        "max_row": 30,
+        "blocked": {
+            "rows": [],
+            "cols": [],
+            "seats": []
+        },
+        "ghost": {
+            "rows": [],
+            "cols": [],
+            "seats": []
+        },
+        "default_zone": {
+            "zone_name": "Standard Seat"
+        },
+        "zones": [
+            {
+                "zone_name": "Upfront Seat",
+                "include_rows": [2, 3, 4, 5],
+                "exclude_cols": [],
+                "exclude_seats": []
+            },
+            {
+                "zone_name": "Sweet Seat",
+                "include_rows": [1, 12, 13],
+                "exclude_cols": [],
+                "exclude_seats": []
+            }
+        ]
+    },
+    "UO_A321": 
+    {
+        "max_row": 39,
+        "blocked": {
+            "rows": [],
+            "cols": [],
+            "seats": []
+        },
+        "ghost": {
+            "rows": [],
+            "cols": [],
+            "seats": ["11A", "11F", "25A", "25F"]
+        },
+        "default_zone": {
+            "zone_name": "Standard Seat"
+        },
+        "zones": [
+            {
+                "zone_name": "Upfront Seat",
+                "include_rows": [2, 3, 4, 5],
+                "exclude_cols": [],
+                "exclude_seats": []
+            },
+            {
+                "zone_name": "Sweet Seat",
+                "include_rows": [1, 11, 12, 26],
+                "exclude_cols": [],
+                "exclude_seats": [ "12B", "12C", "12D", "12E"]
+            }
+        ]
+    },
+    "UO_A320NEO": 
+    {
+        "max_row": 32,
+        "blocked": {
+            "rows": [],
+            "cols": [],
+            "seats": []
+        },
+        "ghost": {
+            "rows": [],
+            "cols": [],
+            "seats": ["32A", "32D", "32E", "32F"]
+        },
+        "default_zone": {
+            "zone_name": "Standard Seat"
+        },
+        "zones": [
+            {
+                "zone_name": "Upfront Seat",
+                "include_rows": [2, 3, 4, 5],
+                "exclude_cols": [],
+                "exclude_seats": []
+            },
+            {
+                "zone_name": "Sweet Seat",
+                "include_rows": [1, 12, 13],
+                "exclude_cols": [],
+                "exclude_seats": []
+            }
+        ]
+    }
+}

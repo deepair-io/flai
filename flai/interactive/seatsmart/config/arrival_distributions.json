@@ -1,0 +1,21 @@
+{
+    "default": [
+        {
+            "until_week": 26,
+            "dist": 0.216
+        },
+        {
+            "until_week": 39,
+            "dist": 0.325
+        },
+        {
+            "until_week": 47,
+            "dist": 0.333
+        },
+        {
+            "until_week": 52,
+            "dist": 0.125
+
+        }
+    ]
+}

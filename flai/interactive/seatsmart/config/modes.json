@@ -1,0 +1,34 @@
+{
+    "default": {
+        "theme": "default",
+        "seat_map_layout": "UO_A320",
+        "pricing_rules": "default",
+        "demand": 180,
+        "arrival_distribution": "default",
+        "customer": "SeatCustomer_MNL"
+    },
+    "UO_A320": {
+        "theme": "default",
+        "seat_map_layout": "UO_A320",
+        "pricing_rules": "default",
+        "demand": 180,
+        "arrival_distribution": "default",
+        "customer": "SeatCustomer_MNL"
+    },
+    "UO_A321": {
+        "theme": "default",
+        "seat_map_layout": "UO_A321",
+        "pricing_rules": "default",
+        "demand": 250,
+        "arrival_distribution": "default",
+        "customer": "SeatCustomer_MNL"
+    },
+    "UO_A320NEO": {
+        "theme": "default",
+        "seat_map_layout": "UO_A320NEO",
+        "pricing_rules": "default",
+        "demand": 220,
+        "arrival_distribution": "default",
+        "customer": "SeatCustomer_MNL"
+    }
+}

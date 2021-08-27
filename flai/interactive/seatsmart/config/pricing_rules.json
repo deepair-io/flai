@@ -1,0 +1,22 @@
+{
+    "default": [
+        {
+            "zone_index": 0,
+            "min_price": 30,
+            "max_price": 145,
+            "delta_price": 5
+        },
+        {
+            "zone_index": 1,
+            "min_price": 65,
+            "max_price": 300,
+            "delta_price": 5
+        },
+        {
+            "zone_index": 2,
+            "min_price": 120,
+            "max_price": 480,
+            "delta_price": 5
+        }
+    ]
+}

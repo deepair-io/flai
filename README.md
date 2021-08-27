@@ -6,7 +6,7 @@
 **[Documentation]** |
 
 ![python](https://img.shields.io/badge/python-3.6|3.7-blue.svg)
-[![version](https://img.shields.io/badge/version-0.2.0-green.svg)](http://pypi.deepair.io)
+[![version](https://img.shields.io/badge/version-0.1.2-green.svg)](http://pypi.deepair.io)
 
 ## Introduction ##
 Welcome to Flai, pronounced as 'Fly!' :smiley:. Flai is toolkit for developing and comparing reinforcement learning algorithms built by [deepair](https://www.deepair.io). It is inspired by OpenAI Gym and has been modified for deepair's needs. Flai comes with pre packaged games that are designed and maintained by deepair. Get in touch with us, if you want to write your games. Currently this package is designed for deepair's internal use. Our long term goal is to open source this package, along with its games to AI research community.
@@ -47,15 +47,7 @@ pip install -r requirements.txt
 ## Environments
 Here’s a bare minimum example of getting something running. This will run an instance of the SeatSmart Environment for 30 timesteps, rendering the environment at each step. You should see a window pop up rendering the SeatSmart game:
 
-```
-from flai import SeatSmartEnv
-env = SeatSmartEnv()
-env.reset()
-for _ in range(30):
-    env.render()
-    env.step(env.action_space.sample()) # take a random action
-env.close()
-```
+![Snippet](./docs/assets/images/main/flai-main-1-m.png)
 
 It should look something like this:
 
@@ -91,20 +83,8 @@ This is just an implementation of the classic “agent-environment loop”. Each
 
 The process gets started by calling `reset()`, which returns an initial observation. So a more proper way of writing the previous code would be to respect the done flag:
 
-```
-from flai import SeatSmartEnv
-env = SeatSmartEnv()
-for i_episode in range(20):
-    observation = env.reset()
-    done = False
-    while not done:
-        env.render()
-        print(observation)
-        action = env.action_space.sample()
-        observation, reward, done, info = env.step(action)
-        print(reward)
-env.close()
-```
+
+![Snippet](./docs/assets/images/main/flai-main-2-s.png)
 
 This should give a video and output like the following. You should be able to see where the resets happen.
 

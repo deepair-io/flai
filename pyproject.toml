@@ -1,21 +1,29 @@
 [tool.poetry]
 name = "flai"
-version = "0.2.0"
+version = "0.1.2"
 description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.8.6"
 pygame = "2.0.0.dev6"
 numpy = "^1.18.4"
 scipy = "^1.4.1"
 matplotlib = "^3.2.1"
 rich = "^9.5.1"
+pydantic = "^1.8.1"
+PyYAML = "^5.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 flake8 = "^3.8.4"
 autopep8 = "^1.5.4"
+ipython = "^7.21.0"
+PyYAML = "^5.4.1"
+ipdb = "^0.13.7"
+ipykernel = "^5.5.0"
+seaborn = "^0.11.1"
+snakeviz = "^2.1.0"
 
 [tool.poetry.scripts]
 seatsmart = "flai:game"

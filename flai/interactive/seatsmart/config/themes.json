@@ -1,0 +1,39 @@
+{
+    "default": {
+        "images": {
+            "ZONE3_AVAIL_IMG": "assets/images/SweetSeat.png",
+            "ZONE3_TAKEN_IMG": "assets/images/SweetSeatTaken.png",
+            "ZONE2_AVAIL_IMG": "assets/images/UpfrontSeat.png",
+            "ZONE2_TAKEN_IMG": "assets/images/UpfrontSeatTaken.png",
+            "ZONE1_AVAIL_IMG": "assets/images/StandardSeat.png",
+            "ZONE1_TAKEN_IMG": "assets/images/StandardSeatTaken.png",
+            "BLOCKED_SEAT_IMG": "assets/images/BlockedSeat.png",
+            "CUST_AWAKE_IMG": "assets/images/customer.png",
+            "CUST_SLEEP_IMG": "assets/images/customer_sleep.png",
+            "BACKGROUND_IMG": "assets/images/background.png"
+        },
+        "fonts": {
+            "TITLE_FONT": "assets/fonts/Computerfont.ttf",
+            "TITLE_FONT_SIZE": 60,
+            "HEADING_FONT": "assets/fonts/Computerfont.ttf",
+            "HEADING_FONT_SIZE": 40,
+            "STAT_LABEL_FONT": "assets/fonts/Computerfont.ttf",
+            "STAT_LABEL_FONT_SIZE": 32,
+            "STAT_FONT": "assets/fonts/RobotoMono-Regular.ttf",
+            "STAT_FONT_SIZE": 24,
+            "FOOTNOTE_FONT": "assets/fonts/RobotoMono-Regular.ttf",
+            "FOOTNOTE_FONT_SIZE": 12
+        },
+        "colors": {
+            "COLOR_ZONE3": [60, 120, 216],
+            "COLOR_ZONE2": [103, 78, 167],
+            "COLOR_ZONE1": [230, 145, 56],
+            "COLOR_DEEPAIR_RED": [242, 107, 87],
+            "COLOR_DEEPAIR_GREEN": [30, 168, 150],
+            "COLOR_LIGHT_FONT": [230, 230, 230],
+            "COLOR_DARK_FONT": [63, 69, 69],
+            "COLOR_WHITE": [255, 255, 255],
+            "COLOR_BLACK": [0, 0, 0]
+        }
+    }
+}

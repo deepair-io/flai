@@ -1,4 +1,23 @@
+![](./assets/images/profile.png)
 **[Home]** | **[Experiments]** |  **[Tutorial]** |
+
+![Simple Demo](./assets/gifs/demo1.gif)
+
+**Pro Tip**: If it is distracting, you can easily supress the window from poppoing up, by passing mode='background' while rendering the environment. This is very useful while you are training your RL agent and want to significantly speedup the process.
+
+Normally, the simulation ends when the time the flight is sold-out or flight departs. More on that later. For now, please ignore any warnings.
+
+Currently `SeatSmart` is the only environment that is available. We will add more in the future and these Environments will all descend from the Env base class. The `SeatSmart` environment can be run in many modes, to simulate different seatmap configurations. 
+
+If you would like to see some other mode for the environments in action, try passing the mode as an argument. Like shown below:
+
+```
+env = SeatSmartEnv(mode = 'UO_A321')  # This will simulate a A321 configuration
+```
+
+Here are a list of modes that are available right now: `"UO_A320"`, `"UO_A321"`, `"UO_A320NEO"`
+
+Note that if you’re missing any dependencies, you should get a helpful error message telling you what you’re missing. (Let us know if a dependency gives you trouble without a clear instruction to fix it.) Installing a missing dependency is generally pretty simple. 
 
 
 ## Observations
@@ -95,17 +114,14 @@ In the above example, since 25 was not a valid price for zone1, it was automatic
 Fortunately, the better your learning algorithm, the less you’ll have to try to interpret these numbers yourself.
 
 ## Available Environments and Modes
- `SeatSmart` has many different pre-built modes. Here is a list of the modes that are available.
+Today, Flai comes with one environment called `SeatSmart`. Our vision is to add more and also work with the community to create more environments focused on the travel industry. `SeatSmart` has many different pre-built modes. Here is a list of the modes that are available.
 
 1. `UO_A320` mode - this creates a game for a typical A320 seatmap. This is also the default mode.
 2. `UO_A321` mode - this creates a game for a typical A321 seatmap.
 3. `UO_A320NEO` mode - this creates a game for a typical A320-NEO seatmap.
 
-### User defined configurations:
-All user defined config(s) needs to be placed at `~/.config/flai/seatsmart/config/` directory and all the plugins can be placed at `~/.config/flai/seatsmart/`
-
-#### Mode
-Mode config is named `modes.json`. [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/modes.json) you can checkout the default `modes.json` file that comes with flai.
+### Adding Custom Modes:
+If you are working with flai source code, you will be able to compose your own modes and create brand new modes. A mode has to be defined in the `flai\envs\seatsmart\config\modes.json` folder.
 
 A typical mode contains 6 attributes:
 
@@ -118,78 +134,14 @@ A typical mode contains 6 attributes:
         "customer": "SeatCustomer_MNL"
     },
 
-
-1. **`theme`**: That defines the look and feel of the pygame. This is picked up from `themes.json` file. [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/themes.json) you can checkout the default `themes.json` file that comes with flai. Currently we have only "default" theme for pygame. We will soon add more themes. 
-2. **`seat_map_layout`**: This is the layout of the seatmap as defined in the `seatmaps.json` file. [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/seatmaps.json) you can checkout the default `seatmaps.json` file that comes with flai. Choose any of the available seatmaps available or simply define your own (and place it at `~/.config/flai/seatsmart/config/seatmaps.json`).
-3. **`pricing_rules`**: This defines the minimum and maximum price for each zone that is defined in the seat_map_layout. We use `pricing_rules.json` file for this and [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/pricing_rules.json) you can checkout the default `pricing_rules.json` file that comes with flai. Choose an existing pricing rule or create a new one in `pricing_rules.json` file (also, please place it at `~/.config/flai/seatsmart/config/pricing_rules.json`). 
-4. **`demand`**: Number of transactions you want to simulate for every game episode. Please note that every customer will buy a ticket on the flight. But if the customer will buy a seat or not depends on your actions and the customer choice model that is defined in the mode.
-5. **`arrival_distribution`**: This attribute controls the weekly arrival rate of customer during the game. A game lasts for one episode, which is 364 days or 52 weeks. Every time the game proceed by one step, a customer is spawned and the time moves based on the arrival rate. The sampling of arrival rate follows a poisson distribution. We use `arrival_distribution.json` file for this and [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/arrival_distribution.json) you can checkout the default `arrival_distribution.json` file that comes with flai. You can change the arrival rate so that you can train the agent for various real-life scenarios like "early booking" flight or "late booking" flight. These different distributions will be made available within `arrival_distributions.json` file. If you dont find what you are looking for, feel free to create one and add it to your custom mode (also, please place it at `~/.config/flai/seatsmart/config/arrival_distribution.json`).
-6. **`customer`**: This attribute points the class that defines the customer purchase logic. The reinforcement learning agent trying to beat this customer. Currently we have two classes available ("SeatCustomer" and "SeatCustomer_MNL") and you can find these classes [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/customers.py). Feel free to pick one of the exiting customer models or create your own in `customers.py` file as a plugin and place it at `~/.config/flai/seatsmart/customers.py`. 
+1. **`theme`**: that defines the look and feel of the game. You can choose from various themes that are available in the `themes.json` same folder.
+1. **`seat_map_layout`**: this is the layout of the seatmap as defined in the `seatmaps.json` file in the same folder. Choose any of the available seatmaps or simply define your own.
+1. **`pricing_rules`**: this defines the minimum and maximum price for each zone that is defined in the seat_map_layout. Choose an existing pricing rule or create a new one in `pricing_rules.json` file. 
+1. **`demand`**: number of transactions you want to simulate for every game episode. Please note that every customer will buy a ticket on the flight. But if the customer will buy a seat or not depends on your actions and the customer choice model that is defined in the mode.
+1. **`customer`**: this attribute points the class that defines the customer purchase logic. The reinforcement learning agent trying to beat this customer. Feel free to pick one of the exiting customer models or create your own in `customers.py` file. 
+1. **`arrival_distribution`**: this attribute controls the weekly arrival rate of customer during the game. A game lasts for one episode, which is 364 days or 52 weeks. Every time the game proceed by one step, a customer is spawned and the time moves based on the arrival rate. The sampling of arrival rate follows a poisson distribution. You can change the arrival rate so that you can train the agent for various real-life scenarios like "early booking" flight or "late booking" flight. These different distributions will be made available within `arrival_distributions.json` file. If you dont find what you are looking for, feel free to create one and add it to your custom mode.
 
 As you can see, you have complete control on which game you want to play. The reason for keep the game configurable is because we are still evolving the environment so we wanted to make sure the environment is open both "game designers" and "RL agent designers". Ideally you should be training your reinforcement learning algorithm to train in all the different modes.
-
-#### SeatCustomer_MNL Parameters
-
-We use `customer_parameters.json` to control one of the customer model's parameter, namely "SeatCustomer_MNL" model. [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/config/customer_parameters.json) you can checkout the default `customer_parameters.json` file that comes with flai. You can create your own `customer_parameters.json` and place it at `~/.config/flai/seatsmart/config/customer_parameters.json`
-
-```
-{
-    "SeatCustomer_MNL": {
-        "MyCustomer": {
-            "beta_group_seat": [
-                0,
-                0.3,
-                0.2,
-                0.1
-            ],
-            "beta_price_sensitivity": -0.01,
-            "beta_nobuy_sensitivity": 0.03,
-            "beta_forward": 1.5,
-            "beta_window": 0.75,
-            "beta_aisle": 0.5,
-            "beta_extra_legroom": 0.75,
-            "beta_isolation": 0.75,
-            "beta_constant": 1.4,
-            "groupsize_probability": [
-                0.5,
-                0.5
-            ],
-            "spawn_probability": -1
-        }
-    }
-}
-```
-
-1. **beta_group_seat** : Not sure what this is but either you can check the source code [Here](https://bitbucket.org/deepair/flai/src/master/flai/envs/seatsmart/customers.py) or ping arinbjorn@deepair.io
-2. **beta_price_sensitivity** : sensitivity to the price of the seat (please add negative in front, we will fix it in the next upgrade)
-3. **beta_nobuy_sensitivity** : sensitivity to no purchase option
-4. **beta_forward** : sensitivity towards seats that are in front
-5. **beta_window** : sensitivity towards window seats
-6. **beta_aisle** : sensitivity towards aisle seats
-7. **beta_extra_legroom** : sensitivity towards leg room
-8. **beta_constant** : Not sure :( 
-9. **groupsize_probability** : list of size two with group size probability 
-10. **spawn_probability** : probability of spawning this customer
-
-> **Note** : you can create a customer with just one attribute change. For example if you want to create "MyNewCustomer" and only change "beta_forward" from 1.5 to 0. The rest of the parameters will be picked up from default (as shown above in MyCustomer). Then the following json should suffice:
-
-```
-{
-    "SeatCustomer_MNL": {
-        "MyNewCustomer": {
-            "beta_forward": 0,
-            "spawn_probability": 1
-        }
-    }
-}
-```
-
-## Plugins
-
-Currently we have only one plugin:
-
-### Customer Plugin
-TODO
 
 ## Interactive Game
 Finally, as a fun exercise we have also provide a way to play the game in a 100% interactive mode. Where you can manually spawn customers, change the offered price and see if you can beat your RL agent. Here are is how you access the game in the interactive mode.
