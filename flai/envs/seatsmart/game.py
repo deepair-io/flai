@@ -1,15 +1,11 @@
 from flai.envs.seatsmart.flight import Flight
-from flai.envs.seatsmart.tracking import Episodes
-from flai.envs.seatsmart.models.tracking import EpisodeState
-from flai.envs.seatsmart.models.flight import GameState, SeatMap, FlightBaseState, Snapshot, Experience
-from flai.envs.seatsmart.models.observation import CustomerObservation, AnalystObservation, CFlightContext
+from flai.envs.seatsmart.event import EventCreator
+from flai.envs.seatsmart.models.event import EventState
+from flai.envs.seatsmart.models.flight import GameState, SeatMap, FlightBaseState
+from flai.envs.seatsmart.models import customer, analyst
 
 import logging
 logger = logging.getLogger("SeatSmart")
-
-
-def customer_loader():
-    pass
 
 
 class PricingGame:
@@ -23,68 +19,76 @@ class PricingGame:
 
     # base config
     CONFIG: GameState = None
-    EPISODES = Episodes
-    SNAPSHOT = Snapshot()
 
-    def __init__(self, config: dict = {}, snapshot: bool = False):
-
-        # To create snapshots or not
-        self._snapshot = snapshot
+    def __init__(self, config: dict = {}):
 
         self.CONFIG = GameState(**config)
-        logger.debug('Game state config: {}'.format(self.CONFIG.dict()))
+        logger.debug(':video_game: Game state config: {}'.format(
+            self.CONFIG.dict()))
 
         flight_base_state = FlightBaseState(SeatMap=self.CONFIG.SeatMap,
-                                            Information=self.CONFIG.Information)
+                                            FlightInfo=self.CONFIG.FlightInfo)
 
         # Create a flight
         self.flight = Flight(flight_base_state)
-        logger.debug('Initializing flight with seat map config : {}'.format(
+        logger.debug(':airplane: Initializing flight with seat map config : {}'.format(
             flight_base_state.SeatMap.dict()))
 
         # Create total seat revenue
-        self.total_seat_revenue = self.CONFIG.TotalSeatRevenue
-        logger.debug('Initializing flight with total seat revenue : {}'.format(
+        self.total_seat_revenue = self.CONFIG.RevenueInfo.TotalSeatRevenue
+        logger.debug(':money_with_wings: Initializing flight with total seat revenue : {}'.format(
             self.total_seat_revenue))
-
-        # Demand should be created from flight base state availability
-        self.CONFIG.EpisodeState.Demand = self.flight.tickets
-        self.EPISODES.init(state=self.CONFIG.EpisodeState)
-        logger.debug('Initializing episodes with episode state : {}'.format(
-            self.EPISODES.state.dict()))
 
         from flai.envs.seatsmart.customer import SeatCustomer_MNL
         self.seat_customer = SeatCustomer_MNL()
+        publish_hook = self.seat_customer.observe()
+        logger.debug(':leftwards_arrow_with_hook: Published customer hook: {}'.format(
+            publish_hook.dict()))
 
-        # Create an event in episode
-        self.game_over = not self.EPISODES.event()
+        # Demand should be created from flight base state availability
+        # TODO: Make the demand as a sample from the distribution (gamma)
+        self.event_state = EventState(Clock=self.CONFIG.ClockState,
+                                      Demand=self.flight.tickets,
+                                      CustomerTypes=publish_hook.CustomerTypes)
+        self.event_creator = EventCreator(self.event_state)
+        logger.debug(':checkered_flag: Initializing event with event state : {}'.format(
+            self.event_state.dict()))
+
+        # Create an event
+        spawn_info, is_valid = self.event_creator.tick()
+        self.game_over = not is_valid
+        logger.debug(
+            ':game_die: Created event with state: {}'.format(spawn_info))
+
+        if self.game_over:
+            logger.debug('Game over with context : {}'.format({
+                "FlightInformation": self.flight(),
+                "RequestUTCTimeStamp": spawn_info.Time,
+                "DepartureDate": self.CONFIG.ClockState.StopUTC
+            }))
 
         # Spawn a customer
-        self.customer_context = self.seat_customer.spawn(
-            spawn_time=self.EPISODES.state.CurrentContext.UTCTimeStamp)
-        logger.debug('Spawning a new customer with the context : {}'.format(
-            self.customer_context))
+        self.customer_context = self.seat_customer.spawn(spawn_info=spawn_info)
+        logger.debug(':cat: Spawning a new customer with the context : {}'.format(
+            self.customer_context.dict()))
 
     def transaction(self, customer_context) -> bool:
 
-        groupsize = customer_context['GroupSize']
+        groupsize = customer_context.GroupSize
 
         # Check if 1. tickect availability >= group size and flight status is true
-        if (self.flight.tickets >= groupsize) and self.EPISODES.state.CurrentContext.Valid:
-            logger.debug('Initiating transaction')
-
-            if self._snapshot:
-                _flight_state = self.flight.state.copy(deep=True)
+        if (self.flight.tickets >= groupsize) and self.event_creator.valid_customer:
+            logger.debug(':pager: Initiating transaction')
 
             # First Sell a Ticket to the group
             self.flight.sell_ticket(groupsize)
-            logger.debug('Customer purchasing flight tickets')
+            logger.debug(':purse: Customer purchasing flight tickets')
 
             # send observation to the customer and ask for action
             customer_observation = self.customer_observation
 
             customer_actions = self.seat_customer.action(customer_observation)
-            logger.debug('Customer responded with action : {}'.format(
+            logger.debug(':credit_card: Customer responded with action : {}'.format(
                 customer_actions.dict()))
 
             # One action is taken update the flight state
@@ -97,24 +101,9 @@ class PricingGame:
                 logger.debug('Seat [{}, {}] sold for {}'.format(
                     row, col, single_seat_revenue))
 
-            # Add Cutomer's action to Episde History
-            self.EPISODES.state.CurrentContext.CustomerSelected = customer_actions.Selected
-
-            # Record a snapshot
-            if self._snapshot:
-                self.SNAPSHOT.Experience.append(Experience(FlightState=_flight_state,
-                                                           TotalSeatRevenue=self.total_seat_revenue + seat_revenue,
-                                                           CustomerResponse=customer_actions,
-                                                           Episode=self.EPISODES.state.copy(deep=True)))
-                logger.debug('Taking a snapshot')
-
-            # Create a new event in the game
-            game_over = not ((self.EPISODES.event())
-                             and (self.flight.tickets > 0))
-
-            return game_over, seat_revenue
+            return seat_revenue
         else:
-            return True, 0
+            return 0
 
     def act(self, action: dict = {}):
         '''
@@ -132,23 +121,38 @@ class PricingGame:
 
             # Update zone prices
             self.flight.zone_price = action
-            logger.info('Zone prices: {}'.format(self.flight.zone_price))
+            logger.info(':seat: Zone prices: {}'.format(
+                self.flight.zone_price))
 
             # Do a complete transaction
-            self.game_over, seat_revenue = self.transaction(
+            seat_revenue = self.transaction(
                 self.customer_context)
-            logger.info('Seat revenue generated: {}'.format(seat_revenue))
+            logger.info(
+                ':money_with_wings: Seat revenue generated: {}'.format(seat_revenue))
 
             # Update total seat revenue
             self.total_seat_revenue += seat_revenue
-            logger.debug('Flight total seat revenue : {}'.format(
+            logger.debug(':moneybag: Flight total seat revenue : {}'.format(
                 self.total_seat_revenue))
+
+            # Create an event
+            spawn_info, is_valid = self.event_creator.tick()
+            self.game_over = not ((is_valid) and (self.flight.tickets > 0))
+            logger.debug(
+                ':game_die: Created event with state: {}'.format(spawn_info))
 
             # Spawn a customer
             self.customer_context = self.seat_customer.spawn(
-                spawn_time=self.EPISODES.state.CurrentContext.UTCTimeStamp)
-            logger.debug('Spawning a new customer with the context : {}'.format(
-                self.customer_context))
+                spawn_info=spawn_info)
+            logger.debug(':panda_face: Spawning a new customer with the context : {}'.format(
+                self.customer_context.dict()))
+
+            if self.game_over:
+                logger.debug('Game over with context : {}'.format({
+                    "FlightInformation": self.flight(),
+                    "RequestUTCTimeStamp": spawn_info.Time,
+                    "DepartureDate": self.CONFIG.ClockState.StopUTC
+                }))
 
             # return game status
             return self.game_over, seat_revenue
@@ -167,9 +171,29 @@ class PricingGame:
                 seat.ZoneName = self.flight._seat_to_zonename(state, seat)
                 seat.Price = self.flight.zone_price[seat.ZoneName]['Price']
 
-        observation = AnalystObservation(Episodes=self.EPISODES.state,
-                                         SeatMap=state.SeatMap,
-                                         Grid=state.Grid)
+        segment = analyst.Segment(FlightNumber=self.CONFIG.FlightInfo.Number,
+                                  CarrierCode=self.CONFIG.FlightInfo.CarrierCode,
+                                  DurationInSec=self.CONFIG.FlightInfo.DurationInSec,
+                                  DepartureAirport=self.CONFIG.FlightInfo.DepartureAirport,
+                                  ArrivalAirport=self.CONFIG.FlightInfo.ArrivalAirport,
+                                  SeatMap=self.CONFIG.SeatMap,
+                                  SegmentProducts=self.flight())
+
+        journey = analyst.Journey(OriginCityCode=self.CONFIG.FlightInfo.DepartureAirport,
+                                  DestinationCityCode=self.CONFIG.FlightInfo.ArrivalAirport,
+                                  OriginAirportCode=self.CONFIG.FlightInfo.DepartureAirport,
+                                  DestinationAirportCode=self.CONFIG.FlightInfo.ArrivalAirport,
+                                  DepartureDate=self.CONFIG.ClockState.StopUTC,
+                                  ArrivalDate=self.CONFIG.ClockState.StopUTC+self.CONFIG.FlightInfo.DurationInSec,
+                                  Segments=[segment]
+                                  )
+
+        req = analyst.Request(Journeys=[journey])
+
+        observation = analyst.Observation(RequestUTCTimeStamp=self.event_creator.spawned_time,
+                                          CurrencyCode="HKD",
+                                          Requests=[req],
+                                          Grid=state.Grid)
         return observation
 
     @property
@@ -189,8 +213,8 @@ class PricingGame:
                     _s.append(-1*seat.Ghost)
             Seats.append(_s)
 
-        return CustomerObservation(Context=CFlightContext(DepartureDatetimeUTC=self.EPISODES.state.Clock.StopUTC),
-                                   Seats=Seats,
-                                   WindowCols=state.SeatMap.WindowCols,
-                                   AisleCols=state.SeatMap.AisleCols,
-                                   ExitRows=state.SeatMap.ExitRows)
+        return customer.Observation(Context=customer.FlightContext(DepartureDatetimeUTC=self.CONFIG.ClockState.StopUTC),
+                                    Seats=Seats,
+                                    WindowCols=state.SeatMap.WindowCols,
+                                    AisleCols=state.SeatMap.AisleCols,
+                                    ExitRows=state.SeatMap.ExitRows)

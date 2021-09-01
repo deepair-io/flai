@@ -11,5 +11,4 @@ if __name__ == "__main__":
     while not done:
         action = env.action_space.sample()
         observation, reward, done, info = env.step(action)
-        print('[Reward] : {}'.format(reward))
         break

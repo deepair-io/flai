@@ -1,12 +1,10 @@
 import datetime
-from flai.envs.seatsmart.models.observation import CustomerObservation
-from flai.envs.seatsmart.models.action import CustomerAction
+from flai.envs.seatsmart.models import customer
 
 from flai.utils import np_random
 
 from abc import ABC, abstractmethod
 
-import random
 import numpy as np
 from scipy.ndimage.morphology import binary_erosion, binary_opening
 from scipy.spatial.distance import cdist
@@ -15,27 +13,61 @@ from scipy.spatial.distance import cdist
 class BaseCustomer(ABC):
     """This is the base class for the customer. This
     class can be integrated with the Game. The API
-    calls are
+    calls are:
 
     - spaw
     - action
     - observe
+
+    Note : customer should be initialized with a config
+    and return a publish data object (more info below)
+    in order for game to plugin.
+
+    Some helper attributes (pydantic models):
+
+    - self.config : data class to create an instance
+    of the customer class. This is used as argument in
+    the customer class constructor aka "__init__"
+
+    - self.publish : data class that returns published
+    customer class. This is used as return object
+    in the customer class constructor aka "__init__"
+
+    - self.observation_space : data class to hold the
+    data that customer can observe. This data is used
+    as argument in action function.
+
+    - self.action_space : data class to hold the action
+    performed by the spawned customer. Used as a return
+    for action function
+
+    - self.spawn_info : data class for spawing getting
+    the spawning information in spawn function.
+
+    -self.spawn_context : data class to hold the spawn
+    context information. This is used as return type in
+    both spawn function as well as observation 
+
     """
 
-    observation_space = CustomerObservation
-    action_space = CustomerAction
+    observation_space = customer.Observation
+    action_space = customer.Action
+    config = customer.Configuration
+    publish = customer.Publish
+    spawn_info = customer.SpawnInfo
+    spawn_context = customer.SpawnContext
 
     @abstractmethod
     def spawn(self,
-              spawn_time: datetime.datetime = None,
-              seed: int = None) -> dict:
+              spawn_info: customer.SpawnInfo,
+              seed: int = None) -> customer.SpawnContext:
         """This function should initialize a customer
         by initializing its attributes such that it is
         ready for action API call.
         """
 
     @abstractmethod
-    def action(self, observation):
+    def action(self, observation: customer.Observation) -> customer.Action:
         """Function which returns action based on
         provided observation.
 
@@ -48,133 +80,74 @@ class BaseCustomer(ABC):
         """
 
     @abstractmethod
-    def observe(self, observer):
-        """observation function which can return the observation
-        space object for a specified observer.
-
-        Args:
-            observer (string) : type of observer
+    def observe(self) -> customer.SpawnContext:
+        """observation function which return the spawn context
+        for the current spawned customer.
 
         Returns:
-            observation space object ()
+            self.spawn_context object ()
         """
-
-
-class DummyCustomer:
-
-    def __init__(self):
-        pass
-
-    def spawn(self, seed=None, spawn_time=None):
-        return {'GroupSize': 1}
-
-    def action(self, observation):
-        action = None
-        import pdb
-        pdb.set_trace()
-
-        return action
 
 
 class SeatCustomer_MNL(BaseCustomer):
     """Customer Choice Model with seat preference
     """
 
-    _default_config_ = {
-        "beta_group_seat": [
-            0,
-            0.3,
-            0.2,
-            0.1
-        ],
-        "beta_price_sensitivity": -0.01,
-        "beta_nobuy_sensitivity": 0.03,
-        "beta_forward": 1.5,
-        "beta_window": 0.75,
-        "beta_aisle": 0.5,
-        "beta_extra_legroom": 0.75,
-        "beta_isolation": 0.75,
-        "beta_constant": 1.4,
-        "groupsize_probability": [
-            0.5,
-            0.5
-        ],
-        "spawn_probability": -1
-    }
-
-    def __init__(self, config=None):
-
-        if config is None:
-            config = {"average_customer": self._default_config_.copy()}
+    def __init__(self,
+                 config=customer.Configuration(
+                     CustomerTypes=[
+                         customer.CustomerType(
+                             Name="Regular", SpawnProba=0.8, ArrivalAlpha=1.5, ArrivalBeta=2.5,
+                             Parameters={
+                                 "beta_group_seat": [0, 0.3, 0.2, 0.1],
+                                 "beta_price_sensitivity": -0.01,
+                                 "beta_nobuy_sensitivity": 0.03,
+                                 "beta_forward": 1.5,
+                                 "beta_window": 0.75,
+                                 "beta_aisle": 0.5,
+                                 "beta_extra_legroom": 0.75,
+                                 "beta_isolation": 0.75,
+                                 "beta_constant": 1.4,
+                                 "groupsize_probability": [0.5, 0.5],
+                             }
+                         ),
+                         customer.CustomerType(
+                             Name="Business", SpawnProba=0.2, ArrivalAlpha=8, ArrivalBeta=1.2,
+                             Parameters={
+                                 "beta_group_seat": [0, 0.3, 0.2, 0.1],
+                                 "beta_price_sensitivity": -0.01,
+                                 "beta_nobuy_sensitivity": 0.03,
+                                 "beta_forward": 1.5,
+                                 "beta_window": 0.75,
+                                 "beta_aisle": 0.5,
+                                 "beta_extra_legroom": 0.75,
+                                 "beta_isolation": 0.75,
+                                 "beta_constant": 1.4,
+                                 "groupsize_probability": [0.5, 0.5],
+                             }
+                         )
+                     ]
+                 )):
 
         # build customer_type
-        self.customer_type_list, self.customer_type_proba_list = self._build_customer_type(
-            config)
+        self._type_list = config.CustomerTypes
+        self._name_to_index = {}
+        for i, c in enumerate(config.CustomerTypes):
+            self._name_to_index[c.Name] = i
 
         # Static Parameter
         self.choice_N = 3
 
-        # Observation Space
-        # self.observation_space = ObservationSpace()
+        self._spawn_context = None
+        self._publish = self.publish(CustomerTypes=config.CustomerTypes)
 
-        # # Initialize the customer
-        # self.spawn()
-
-    def _build_customer_type(self, config):
-        """Builds the configs for the customer_type and
-        assigns the spawn_probability
-
-        Args:
-            config (dict) : same config as init
-
-        Returns:
-            customer type list of dict (list), spawn probabilities (list)
-        """
-
-        types = []
-        probs = []
-        _default_p_flag = True  # To track default spawn_probability values
-
-        # build customer_type from config
-        for key in config.keys():
-            _customer_type = self._default_config_.copy()
-            _customer_type.update(config[key])
-            _customer_type['name'] = key
-
-            # make flag false if we see non negative probabily
-            if (float(_customer_type['spawn_probability']) >= 0 and _default_p_flag):
-                _default_p_flag = False
-
-            # In the future we can add more customer types
-            types.append(_customer_type)
-            probs.append(float(_customer_type['spawn_probability']))
-
-        # Normalizing probabilities
-        if _default_p_flag:
-            _len = len(probs)
-            _probs = probs
-
-            probs = [1/_len]*_len
-        else:
-            # Replace negative values with 0
-            probs = np.clip(np.array(probs), a_min=0, a_max=None)
-            assert (probs > 0).any(), "All spawn probabilites can not be zero"
-
-            # Normalizing
-            _probs = probs
-            probs = probs / probs.sum()
-            if (_probs != probs).any():
-                logger.warning('Spawn probabilities for agents {} are not normalized. Converting {} to {}'.format(
-                    [x['name'] for x in types], _probs, probs))
-
-        return list(types), list(probs)
-
-    def spawn(self, spawn_time, seed=None):
-        self.customer = np_random.rng.choice(
-            self.customer_type_list, p=self.customer_type_proba_list)
-        self.groupsize = np_random.rng.choice(
-            [1, 2], p=self.customer['groupsize_probability'])
-        return {'GroupSize': self.groupsize}
+    def spawn(self, spawn_info, seed=None):
+        self.customer = self._type_list[self._name_to_index[spawn_info.CustomerTypeName]]
+        # self.groupsize = np_random.rng.choice(
+        #     [1, 2], p=self.customer.Parameters['groupsize_probability'])
+        self.groupsize = 1
+        self._spawn_context = self.spawn_context(GroupSize=self.groupsize)
+        return self._spawn_context
 
     def _dist_from_edge(self, img):
         """Calculate the distance to nearest occupied seat."""
@@ -252,29 +225,29 @@ class SeatCustomer_MNL(BaseCustomer):
         preference = np.zeros(shape=(rows, cols))
 
         # Add a constant utility value
-        preference += self.customer['beta_constant']
+        preference += self.customer.Parameters['beta_constant']
 
         # Set customers opinion of the seat prices based on customer
         # characteristics. People prefer seats next to empty seats
-        preference += self.customer['beta_isolation'] * \
+        preference += self.customer.Parameters['beta_isolation'] * \
             self._dist_from_edge(seat_availability_matrix)
 
         # Preference for window seats
-        preference[:, observations.WindowCols] += self.customer['beta_window']
+        preference[:, observations.WindowCols] += self.customer.Parameters['beta_window']
 
         # Preference for aisle seats
         preference[:, observations.AisleCols
-                   ] += self.customer['beta_aisle']
+                   ] += self.customer.Parameters['beta_aisle']
 
         # Preference for exit row (or extra legroom) seats
         preference[observations.ExitRows
-                   ] += self.customer['beta_extra_legroom']
+                   ] += self.customer.Parameters['beta_extra_legroom']
 
         # Preference for forwarward seats
         preference += np.tile(np.linspace(1, 0, rows),
-                              (cols, 1)).T * self.customer['beta_forward']
+                              (cols, 1)).T * self.customer.Parameters['beta_forward']
 
-        for size, beta in enumerate(self.customer['beta_group_seat']):
+        for size, beta in enumerate(self.customer.Parameters['beta_group_seat']):
             if size > 0:
                 preference += beta * self._scan_groupseats(
                     seat_availability_matrix, size+1)
@@ -292,12 +265,12 @@ class SeatCustomer_MNL(BaseCustomer):
             worst_choice_price = 0
 
         worst_choice += worst_choice_price * \
-            self.customer['beta_nobuy_sensitivity']
+            self.customer.Parameters['beta_nobuy_sensitivity']
 
         # Preference for less expensive seats
         preference += np.clip(seat_prices_matrix
                               - worst_choice_price,
-                              a_min=0, a_max=None) * self.customer['beta_price_sensitivity']
+                              a_min=0, a_max=None) * self.customer.Parameters['beta_price_sensitivity']
 
         # Exponential of all values
         preference = np.exp(preference)
@@ -368,4 +341,4 @@ class SeatCustomer_MNL(BaseCustomer):
         return action
 
     def observe(self):
-        pass
+        return self._publish

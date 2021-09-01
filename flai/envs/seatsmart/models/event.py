@@ -1,7 +1,8 @@
 import datetime
 from pydantic import BaseModel, validator
 from typing import Optional, List
-from flai.envs.seatsmart.models.action import CustomerAction
+
+from flai.envs.seatsmart.models.customer import CustomerType
 
 
 class ClockState(BaseModel):
@@ -10,20 +11,12 @@ class ClockState(BaseModel):
 
 
 class ArrivalContext(BaseModel):
-    Index: int = 0
     UTCTimeStamp: datetime.datetime
     Valid: bool = True
-    CustomerSelected: Optional[List[tuple]]
+    CustomerContext: Optional[List[tuple]]
 
 
-class EpisodeState(BaseModel):
+class EventState(BaseModel):
     Clock: ClockState = ClockState()
     Demand: int = 180
-    CurrentContext: ArrivalContext = None
-    HistoryEvents: List[ArrivalContext] = []
-
-    '''
-    validate
-    1. CurrentContext (if not None) then
-        valid must be correct
-    '''
+    CustomerTypes: List[CustomerType]

@@ -2,15 +2,13 @@ import datetime
 from pydantic import BaseModel, validator, root_validator
 from typing import Optional, List
 
-from flai.envs.seatsmart.models.tracking import EpisodeState
-from flai.envs.seatsmart.models.action import CustomerAction
+from flai.envs.seatsmart.models.event import ClockState
 
 
 class PriceRule(BaseModel):
     Price: float = 10
     MinPrice: float = 0
     MaxPrice: float = 30
-    DeltaPrice: float = 5
 
     '''
     validate the following
@@ -88,14 +86,20 @@ class Seat(BaseModel):
 
 class FlightInfo(BaseModel):
     Number: int = 100
+    CarrierCode: str = "UO"
     DurationInSec: datetime.timedelta = datetime.timedelta(0, 10800, 0)
-    OriginAirportCode: str = "HKG"
-    DestinationAirportCode: str = "KOJ"
+    ArrivalAirport: str = "HKG"
+    DepartureAirport: str = "KOJ"
+
+
+class RevenueInfo(BaseModel):
+    TotalSeatRevenue: float = 0
+    CurrencyCode: str = "HKD"
 
 
 class FlightBaseState(BaseModel):
     SeatMap: SeatMap
-    Information: FlightInfo
+    FlightInfo: FlightInfo
     Grid: List[List[Seat]] = None
 
     @ root_validator
@@ -130,18 +134,7 @@ class FlightBaseState(BaseModel):
 
 class GameState(BaseModel):
     SeatMap: SeatMap = SeatMap()
-    EpisodeState: EpisodeState = EpisodeState()
-    TotalSeatRevenue: float = 0
-    Information: FlightInfo = FlightInfo()
+    ClockState: ClockState = ClockState()
+    RevenueInfo: RevenueInfo = RevenueInfo()
+    FlightInfo: FlightInfo = FlightInfo()
     Plugins: Optional[list]
-
-
-class Experience(BaseModel):
-    FlightState: FlightBaseState
-    TotalSeatRevenue: float
-    CustomerResponse: CustomerAction
-    Episode: EpisodeState
-
-
-class Snapshot(BaseModel):
-    Experience: list = []

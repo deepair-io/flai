@@ -93,3 +93,19 @@ class Flight:
     def sell_ticket(self, number=1):
         self.tickets -= number
         return True
+
+    def __call__(self):
+        product_list = []
+        zp = self.zone_price
+        avail = self.availability
+        sold = self.sold
+        revenue = self.zone_revenue
+        for key in zp.keys():
+            product = {}
+            product["Name"] = key
+            product["Sold"] = sold[key]
+            product["Available"] = avail[key]
+            product["Revenue"] = revenue[key]
+            product.update(zp[key])
+            product_list.append(product)
+        return product_list
