@@ -14,7 +14,11 @@ class PricingGame:
     is pricing seats in a flight. To create an
     object from this class, you need to pass GameState
     object that is present in the models module.
-    Parameters of the CLI object can be changed. 
+    Parameters of the CLI object can be changed.
+
+    Args:
+        config :
+
     '''
 
     # base config
@@ -72,7 +76,20 @@ class PricingGame:
         logger.debug(':cat: Spawning a new customer with the context : {}'.format(
             self.customer_context.dict()))
 
-    def transaction(self, customer_context) -> bool:
+    def transaction(self, customer_context: customer.SpawnContext) -> float:
+        '''
+        This function creates a transaction for customer
+        purchase or no purchase. This function updates
+        the state of the flight
+
+        Args:
+            customer_context (SpawnContext): 
+                Information about the spawned customer
+
+        Return:
+            seat_revenue (float) : seat revenue generated
+                with this transaction 
+        '''
 
         groupsize = customer_context.GroupSize
 
@@ -105,13 +122,13 @@ class PricingGame:
         else:
             return 0
 
-    def act(self, action: dict = {}):
+    def act(self, action: dict = {}) -> tuple:
         '''
         Pricing CLI action is to change the Zone
         price of the flight.
 
         Arg:
-            action (dict): 
+            action (dict): schema same as analyst.action
 
         Return: 
             (game over, seat revenue)
@@ -162,6 +179,7 @@ class PricingGame:
 
     @property
     def analyst_observation(self):
+        '''Returns '''
 
         # Add Seat Grid to the observation
         # state = self.flight.state.copy(deep=True)

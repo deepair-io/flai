@@ -4,7 +4,7 @@ from flai import Env
 import yaml
 import json
 import logging
-logger = logging.getLogger()
+logger = logging.getLogger('SeatSmart')
 
 
 class ActionSpace:
@@ -49,9 +49,7 @@ class ActionSpace:
 class SeatSmartEnv(Env):
     """The main environment for SeatSmart Game. This environment
     is an extension of the base core environment ENV. To check
-    the available API calls, please refer to the base environemnt.
-
-    This is version 2. 
+    the available API calls, please refer to the base environemnt. 
 
     This environment can run on modes:
     Available modes : None
@@ -67,6 +65,7 @@ class SeatSmartEnv(Env):
         if not config_path is None:
             with open(config_path) as f:
                 self.config = yaml.load(f, Loader=yaml.FullLoader)
+            logger.debug('Loading configuration: {}'.format(self.config))
 
     @property
     def observation_space(self):
