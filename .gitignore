@@ -140,3 +140,4 @@ poetry.lock
 
 #Dev-demo
 demo
+*test.py
