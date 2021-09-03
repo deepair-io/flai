@@ -2,27 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>FLAI: Reinforcement Learning Virtual Platform for Travel</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description">
+  <meta name="description" content="Reinforcement Learning Virtual Platform for Travel">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+
 </head>
 <body>
   <div id="app">Loading ...</div>
-  <script src="//cdn.jsdelivr.net/npm/docsify-plugin-carbon@1/index.js"></script>
   <script>
     window.$docsify = {
       name: 'flai',
       repo: '',
       loadSidebar: true,
       coverpage: true,
-      auto2top: true
+      auto2top: true,
+      subMaxLevel: 3,
+
+      // Twemoji
+      plugins: [
+        function (hook, vm) {
+          // parse twemoji
+          hook.doneEach(function() {
+              twemoji.parse(document);
+          });
+        },
+      ],
+
+      // Sibebar Footer 
+      autoFooter: {
+                  name:       'Deepair Solutions',          // company display name (required)
+                  copyYear:   2020,             // start copyright year (required)
+                  url:        'https://www.deepair.io',          // company url (optional)
+                  policy:     true,   // show Privacy Policy (optional)
+                  terms:      true,   // show Terms of Service (optional)
+                  cookies:    false,   // show Cookies Policy (optional)
+                  onBody:     true             // if true it is on the main doc
+                  },
+
+      // Flexible alert
+      'flexible-alerts': {
+                  style: 'flat',
+                  }
     }
   </script>
+  <!-- sidebarFooter -->
+  <script src="https://cdn.jsdelivr.net/npm/@markbattistella/docsify-sidebarfooter@latest"></script>
+  <!-- twemoji -->
+  <script src="//cdn.jsdelivr.net/gh/TaQini/docsify-twemoji@master/twemoji.min.js"></script>
+  <!-- flexible alert -->
+  <script src="https://unpkg.com/docsify-plugin-flexible-alerts"></script>
   <!-- Docsify v4 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+
 </body>
 </html>

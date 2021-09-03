@@ -1,11 +1,14 @@
-- Getting started
-
+- 😃 About
   - [Quick start](quickstart.md)
-  - [Writing more pages](more-pages.md)
-  - [Custom navbar](custom-navbar.md)
-  - [Cover page](cover.md)
 
-- Environments
-
+- 🎮 Environments
   - [SeatSmart](seatsmart/configuration.md)
 
+
+- 🔨 Contribution Guide
+  - [First Pull](something.md)
+
+- 🧠 Research and Development
+  - [Review](review.md)
+
+<footer id="mb-footer"></footer>
