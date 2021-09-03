@@ -1,0 +1,116 @@
+##  _____         _   _____               _      _____         ___ _     
+## |   __|___ ___| |_|   __|_____ ___ ___| |_   |     |___ ___|  _|_|___ 
+## |__   | -_| .'|  _|__   |     | .'|  _|  _|  |   --| . |   |  _| | . |
+## |_____|___|__,|_| |_____|_|_|_|__,|_| |_|    |_____|___|_|_|_| |_|_  |
+##                                                                  |___|
+## Seatsmart is a FLAI environment that is designed to simulate real world
+## seat pricing in flight. To learn more about flai, follow the flai link
+## below. This configuration file is designed to tune SeatSmart environment
+## to your customization. The config is structured as YAML file.
+## 
+## Quick Tips on nature of this config file - 
+## 1. This file follow the same structure game configuration dictionary.
+##   The sturcture has the following major components-
+##   (a) Flight Seatmap - Contains information about flaight layout,
+##   prices, and visual information. Checkout [TODO]
+##   (b) Episode State - Contains state of the event creator for the
+##   game (environment)
+##   (d) Information - Contain info like flight number, flight duration
+##   origin & destination etc
+##   (e) Plugins - Any executable (.py) file can be treated as plugin. 
+##   Currently we only have customer class as plugin. You can use the
+##   default customer classes as a plugin as well and you can assign
+##   the appropriate parameters.
+## 2. This config file works in append mode i.e. you can assign partial
+##   assignments using this file and the rest of the parametes will be
+##   picked up from the default. For example, If you just want to change
+##   TotalSeatRevenue value to 100 (default is 0) then all you need to 
+##   do is add one line in the config file saying "TotalSeatRevenue: 100".
+##
+## Some Useful links -
+## [Flai](https://bitbucket.org/deepair/flai/src/master/)
+## [YAML](https://yaml.org/)
+## [YAML Syntax](https://pyyaml.org/wiki/PyYAMLDocumentation)
+
+####################################
+## Flight SeatMap ##################
+####################################
+SeatMap:
+
+  # We need to first create grid
+  MaxRows: 30
+  MaxCols: 6
+
+  Zones:
+    - Name: "StandardSeat"
+      PriceRule:
+        Price: 10
+        MinPrice: 0
+        MaxPrice: 15
+    
+    - Name: "UpfrontSeat"
+      IncludeRows: [1, 2, 3, 4]
+      PriceRule:
+        Price: 15
+        MinPrice: 10
+        MaxPrice: 25
+    
+    # some cmment
+    - Name: "SweetSeat"
+      IncludeRows: [0, 11, 12]
+      PriceRule:
+        Price: 25
+        MinPrice: 20
+        MaxPrice: 40
+
+
+  WindowCols: [0, 5]
+  AisleCols: [2, 3]
+  ExitRows: [0]
+
+
+####################################
+## Revenue Info ####################
+####################################
+
+RevenueInfo:
+  TotalSeatRevenue: 0
+  CurrencyCode: "USD"
+
+####################################
+## Episodes: Event Creator #########
+####################################
+
+ClockState:
+  StartUTC: "2020-01-01T00:00:00"
+  StopUTC: "2020-12-01T00:00:00"
+
+
+####################################
+## Flight Info #####################
+####################################
+
+FlightInfo:
+  Number: 101
+  CarrierCode: "UO"
+  DurationInSec: "56000"
+  ArrivalAirport: "JFK"
+  DepartureAirport: "SFO"
+
+####################################
+## Additonal Plugins  ##############
+####################################
+
+# Plugins:
+#   - SeatCustomer_MNL:
+#       AverageCustomer:
+#         beta_group_seat: [0, 0.3, 0.2, 0.1]
+#         beta_price_sensitivity: -0.01
+#         beta_nobuy_sensitivity: 0.03
+#         beta_forward: 1.5
+#         beta_window: 0.75
+#         beta_aisle: 0.5
+#         beta_extra_legroom: 0.75
+#         beta_isolation: 0.75
+#         beta_constant: 1.4
+#         groupsize_probability: [0.5,0.5]
