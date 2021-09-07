@@ -1,3 +1,4 @@
+from flai.envs.seatsmart.models.analyst import Observation
 from flai.envs.seatsmart.game import PricingGame
 from flai.utils import np_random
 from flai import Env
@@ -28,7 +29,7 @@ class ActionSpace:
 
     def __contains__(self, x: dict):
         """To check if the action is present in the
-        action space. 
+        action space.
         """
         # TODO
         assert isinstance(x, dict), 'Action should be of type dict'
@@ -75,7 +76,7 @@ class SeatSmartEnv(Env):
         from the game.
         """
 
-        return self.game.analyst_observation
+        return Observation
 
     @property
     def action_space(self):
