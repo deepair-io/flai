@@ -2,11 +2,11 @@
   - [Quick start](quickstart.md)
 
 - 🎮 Environments
-  - [SeatSmart](seatsmart/configuration.md)
+  - [SeatSmart](seatsmart.md)
 
 
 - 🔨 Contribution Guide
-  - [First Pull](something.md)
+  - [Documentation Server](documentation.md)
 
 - 🧠 Research and Development
   - [Review](review.md)

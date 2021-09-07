@@ -70,10 +70,25 @@ env.close()
 ```
 
 ## Spaces
+In the examples above, we’ve been sampling random actions from the environment’s action space. But what actually are those actions? Every environment comes with an `action_space` and an `observation_space`. These attributes are data classes using [pydantic](https://pydantic-docs.helpmanual.io/) and its instance is used for each episode. 
 
 ### Observation space
+Observation space is a data class that contains the information about the observation. When an agent takes a step in the environment, the environment returns `observation`, `reward`, `done` and `info` as shown above. Here, `observation` is an instance of Observation space.
 
+#### Schema
+To get the information about the structure of `observation` and what to expect, we can use the following with the environment of your choice instead of `<EnvironmentName>`:
+
+```python
+from flai import <EnvironmentName>
+env = <EnvironmentName>()
+print(env.observation_space.schema())
+```
+
+The schema will vary depending on the environment.
+
+#### Type conversion
+Since we are using [pydantic](https://pydantic-docs.helpmanual.io/) data classes, we can use efficient type conversion from object to `json` and `dict` using `observation.json()` and `observation.dict()`. 
 
 ### Action space
-
+Action space is a data class that is used for performing action in the environment. In order to take a `step`, agent need to perform an action. Every environment has `action_space` which can be instantiated to create an action. Additionally, we can use `env.action_space.sample()` to sample a valid action.
 
