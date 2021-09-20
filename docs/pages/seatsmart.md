@@ -1,4 +1,4 @@
-# Introduction
+<!-- # Introduction
 
 Seatsmart 
 
@@ -23,4 +23,6 @@ Seatsmart
 
 # Configurations
 
+ -->
 
+# 🦁 Coming soon!
