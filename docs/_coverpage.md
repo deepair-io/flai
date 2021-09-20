@@ -1,5 +1,4 @@
-![logo](https://raw.githubusercontent.com/docsifyjs/docsify/master/docs/_media/icon.svg)
-
+![logo](./assets/images/icon.svg)
 # FLAI <small>Pre-Alpha</small>
 
 > Reinforcement Learning Virtual Platform for Travel

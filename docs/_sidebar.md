@@ -1,14 +1,16 @@
 - 😃 About
-  - [Quick start](quickstart.md)
+  - [👟 Quick start](pages/quickstart.md)
 
 - 🎮 Environments
-  - [SeatSmart](seatsmart.md)
+  - [💺 SeatSmart](pages/seatsmart.md)
+  - [🛍️ UBundle](pages/ubundle.md)
 
 
-- 🔨 Contribution Guide
-  - [Documentation Server](documentation.md)
+- 🧭 Contribution Guide
+  - [📖 Documentation Server](pages/documentation.md)
+  - [🔨 Developers Guide](pages/devguide.md) 
 
 - 🧠 Research and Development
-  - [Review](review.md)
+  - [📚 Literature](pages/review.md)
 
 <footer id="mb-footer"></footer>
