@@ -10,7 +10,7 @@
 Welcome to **Flai**, pronounced as 'Fly!' :smiley:
 
 
-Flai is toolkit for developing and comparing reinforcement learning algorithms built by [deepair](https://www.deepair.io). It is inspired by OpenAI Gym and has been modified for deepair's needs. Flai comes with pre packaged games that are designed and maintained by deepair. Get in touch with us, if you want to write your games. Currently this package is designed for deepair's internal use. Our long term goal is to open source this package, along with its games to AI research community.
+Flai is toolkit for developing and comparing reinforcement learning algorithms built by [deepair](https://www.deepair.io). It is inspired by OpenAI Gym and has been modified for travel's needs. Flai comes with pre packaged games that are designed to play by reinforcement learning agents. We are continuously developing and adding new environments to Flai.
 
 ## Installation
 To install the entire library, use `pip install deepair-flai`.
