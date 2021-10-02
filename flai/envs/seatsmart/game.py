@@ -158,13 +158,14 @@ class PricingGame:
             logger.debug(
                 ':game_die: Created event with state: {}'.format(spawn_info))
 
-            # Spawn a customer
-            self.customer_context = self.seat_customer.spawn(
-                spawn_info=spawn_info)
-            logger.debug(':panda_face: Spawning a new customer with the context : {}'.format(
-                self.customer_context.dict()))
+            if not self.game_over:
+                # Spawn a customer
+                self.customer_context = self.seat_customer.spawn(
+                    spawn_info=spawn_info)
+                logger.debug(':panda_face: Spawning a new customer with the context : {}'.format(
+                    self.customer_context.dict()))
 
-            if self.game_over:
+            else:
                 logger.debug('Game over with context : {}'.format({
                     "FlightInformation": self.flight(),
                     "RequestUTCTimeStamp": spawn_info.Time,

@@ -133,7 +133,7 @@ class EventCreator:
             tuple: Customer Spawn Info (BaseModel), Game Over (Bool)
         '''
 
-        spawned_time, spawned_customer = datetime.datetime.min, None
+        spawned_time, spawned_customer = datetime.datetime.min, 'None'
 
         try:
             key = next(iter(self.future))
